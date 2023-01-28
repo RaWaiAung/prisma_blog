@@ -11,48 +11,53 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(uuid())
-  email    String   @unique
-  name     String   @db.VarChar(20)
-  password String
-  role     Role     @default(User)
-  Post     Post[]
-  Profile  Profile?
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String   @db.VarChar(20)
+  password  String
+  role      Role     @default(User)
+  Post      Post[]
+  Profile   Profile?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id         String             @id @default(uuid())
-  title      String             @db.VarChar(255)
-  content    String             @db.VarChar(255)
-  published  Boolean            @default(false)
-  author     User               @relation(fields: [authorId], references: [id])
-  authorId   String
-  createdAt  DateTime           @default(now())
-  categoreis CategoriesOnPost[]
+  id         String       @id @default(uuid())
+  title      String       @db.VarChar(255)
+  content    String       @db.VarChar(255)
+  published  Boolean      @default(false)
+  authorId   String?
+  author     User?        @relation(fields: [authorId], references: [id])
+  TagsOnPost TagsOnPost[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 model Profile {
-  id     String @id @default(uuid())
-  bio    String @db.VarChar(20)
-  image String?
-  user   User   @relation(fields: [userEmail], references: [email])
-  userEmail String @unique
+  id        String   @id @default(uuid())
+  bio       String   @db.VarChar(20)
+  image     String?
+  user      User     @relation(fields: [userEmail], references: [email])
+  userEmail String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Category {
-  id    String             @id @default(uuid())
-  name  String             @db.VarChar(15)
-  posts CategoriesOnPost[]
+model TagsOnPost {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model CategoriesOnPost {
-  id         String   @id @default(uuid())
-  post       Post     @relation(fields: [postId], references: [id])
-  postId     String
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String
-  assignedAt DateTime @default(now())
-  assignedBy String
+model Tag {
+  id         String       @id @default(uuid())
+  hashtag    String
+  TagsOnPost TagsOnPost[]
 }
 
 enum Role {

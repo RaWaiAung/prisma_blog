@@ -67,6 +67,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     if (userExit && correct) {
       const token = signedIn(userExit.id);
+      res.locals.user = userExit
       res.status(200).json({
         status: "success",
         token,
@@ -79,8 +80,8 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 };
 const retrictTo = (...roles: any[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log(res.locals.user);
-    if (!roles.includes(res.locals.user.role)) {
+    console.log("local", res.locals.user);
+    if (!roles.includes(res.locals.user)) {
       return next(new AppError("You do not have to perform this action", 403));
     }
     next();
