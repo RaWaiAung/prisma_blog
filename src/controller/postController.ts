@@ -1,42 +1,36 @@
 import { Prisma, prisma, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
+import catchAsync from "../utilities/catchAsync";
 
 const { post } = new PrismaClient();
 
-export const createNewPost = async (req: Request, res: Response) => {
-  const { title, content, authorId, tagList} = req.body;
+export const createNewPost = catchAsync(async (req: Request, res: Response) => {
+  const { title, content, authorId, tagList } = req.body;
   const postInputSchema: Prisma.PostCreateInput = {
-   title: title,
-   content: content,
-   author: {
-    connect: {
-      id: authorId
-    }
-   },
-   TagsOnPost: {
-    create: tagList.split(',').map((id: string) => ({
-      tagId: id,
-    })),
-  }
-  }
+    title: title,
+    content: content,
+    author: {
+      connect: {
+        id: authorId,
+      },
+    },
+    TagsOnPost: {
+      create: tagList.split(",").map((id: string) => ({
+        tagId: id,
+      })),
+    },
+  };
   await post
     .create({
       data: postInputSchema,
     })
     .then((data) => {
-        res.status(200).json({
-            status: "success",
-            data: data
-          });
-    })
-    .catch((err) => {
-      console.log(err);
-        res.status(200).json({
-            status: "fail",
-            message: err.message
-          });
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
     });
-};
+});
 
 // export const fetchAllPosRoles = (req: Request, res: Response) => {
 //   pOSRole

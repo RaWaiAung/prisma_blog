@@ -4,6 +4,8 @@ import { PrismaClient, Prisma, Role } from "@prisma/client";
 import { signUpUser } from "../types/user/user";
 import signedIn from "../utilities/signedIn";
 import AppError from "../utilities/appError";
+import catchAsync from "../utilities/catchAsync";
+
 const prisma = new PrismaClient();
 const createSendToken = (user, statusCode, res) => {
   const token = signedIn(user._id);
@@ -16,7 +18,7 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-const createNewUser = async (req: Request, res: Response) => {
+const createNewUser = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password }: signUpUser = req.body;
   const createUserSchema: Prisma.UserCreateInput = {
     name: name,
@@ -28,26 +30,16 @@ const createNewUser = async (req: Request, res: Response) => {
       data: createUserSchema,
     })
     .then((data) => {
-      createSendToken(data, 201, res)
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).json({ err });
+      createSendToken(data, 201, res);
     });
-};
-const fetchAllUser = async (req: Request, res: Response) => {
-  await prisma.user
-    .findMany({})
-    .then((data) => {
-      return res.status(201).json({ data });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(500).json({ err });
-    });
-};
-const login = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+});
+const fetchAllUser = catchAsync(async (req: Request, res: Response) => {
+  await prisma.user.findMany({}).then((data) => {
+    return res.status(201).json({ data });
+  });
+});
+const login = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -67,17 +59,14 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     if (userExit && correct) {
       const token = signedIn(userExit.id);
-      res.locals.user = userExit
+      res.locals.user = userExit;
       res.status(200).json({
         status: "success",
         token,
       });
     }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server error Occured");
   }
-};
+);
 const retrictTo = (...roles: any[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     console.log("local", res.locals.user);
@@ -91,5 +80,5 @@ export default {
   createNewUser,
   fetchAllUser,
   login,
-  retrictTo
+  retrictTo,
 };

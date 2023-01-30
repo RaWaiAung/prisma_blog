@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 
 import { Prisma, PrismaClient } from "@prisma/client";
+import catchAsync from "../utilities/catchAsync";
 
 const prisma = new PrismaClient();
 
-const me = async (req: Request, res: Response) => {
+const me = catchAsync(async (req: Request, res: Response) => {
   await prisma.user
     .findUnique({
       where: {
@@ -13,39 +14,29 @@ const me = async (req: Request, res: Response) => {
     })
     .then((data) => {
       return res.status(200).json({ data });
-    })
-    .catch((err) => {
-      console.log(err);
-      console.log(res.locals.user);
-      return res.status(500).json({ err });
     });
-};
-const uploadProfile = async (req: Request, res: Response) => {
-  const userProfileSchema : Prisma.UserUpdateInput = {
+});
+const uploadProfile = catchAsync(async (req: Request, res: Response) => {
+  const userProfileSchema: Prisma.UserUpdateInput = {
     Profile: {
       create: {
         image: req.body.image,
-        bio: req.body.bio
-      }
+        bio: req.body.bio,
+      },
     },
-  }
+  };
   await prisma.user
     .update({
       where: {
         email: req.body.email,
       },
-      data: userProfileSchema
+      data: userProfileSchema,
     })
     .then((data) => {
       return res.status(200).json({ data });
-    })
-    .catch((err) => {
-      console.log(err);
-      console.log(res.locals.user);
-      return res.status(500).json({ err });
     });
-};
+});
 export default {
   me,
-  uploadProfile
+  uploadProfile,
 };
