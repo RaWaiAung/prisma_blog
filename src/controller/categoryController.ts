@@ -15,10 +15,76 @@ export const createNewCategory = catchAsync(
         data: tagInputSchema,
       })
       .then((data) => {
+        res.status(201).json({
+          status: "success",
+          data: data,
+        });
+      });
+  }
+);
+
+export const deleteCategory = catchAsync(
+  async (req: Request, res: Response) => {
+    const { tag_id } = req.params;
+    await tag
+      .delete({
+        where: {
+          id: tag_id,
+        },
+      })
+      .then((data) => {
         res.status(200).json({
           status: "success",
           data: data,
         });
       });
+  }
+);
+
+export const editCategory = catchAsync(async (req: Request, res: Response) => {
+  const { tag_id } = req.params;
+  const { tagName } = req.body;
+  const tagUpdateSchema: Prisma.TagUpdateInput = {
+    hashtag: tagName,
+  };
+  await tag
+    .update({
+      where: {
+        id: tag_id,
+      },
+      data: tagUpdateSchema,
+    })
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
+});
+
+export const fetchCategory = catchAsync(async (req: Request, res: Response) => {
+  const { tag_id } = req.params;
+  await tag
+    .findUnique({
+      where: {
+        id: tag_id,
+      },
+    })
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
+});
+
+export const fetchAllCategory = catchAsync(
+  async (req: Request, res: Response) => {
+    await tag.findMany().then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
   }
 );

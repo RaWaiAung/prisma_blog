@@ -32,133 +32,93 @@ export const createNewPost = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// export const fetchAllPosRoles = (req: Request, res: Response) => {
-//   pOSRole
-//     .findMany({
-//       include: {
-//         PermissionOnRole: {
-//           include: {
-//             Permission: {
-//               select: {
-//                 name: true,
-//                 route: true
-//               }
-//             }
-//           }
-//         },
-//         User: true,
-//       },
-//     })
-//     .then((data) => {
-//       if (data.length > 0) {
-//         Responser({
-//           res,
-//           status: 200,
-//           body: data,
-//           message: "pos role list fetch successfully.",
-//           devMessage: "",
-//         });
-//       } else {
-//         Responser({
-//           res,
-//           status: 404,
-//           body: [],
-//           message: "empty",
-//           devMessage: "",
-//         });
-//       }
-//     })
-//     .catch((err) => {
-//       Responser({
-//         res,
-//         status: 500,
-//         body: null,
-//         message: err,
-//         devMessage: "",
-//       });
-//     });
-// };
+export const editPost = catchAsync(async (req: Request, res: Response) => {
+  const { post_id } = req.params;
+  const { title, content, authorId, tagList } = req.body;
+  await post
+    .update({
+      where: {
+        id: post_id,
+      },
+      data: {
+        title: title,
+        content: content,
+        author: {
+          connect: {
+            id: authorId,
+          },
+        },
+        TagsOnPost: {
+          disconnect: [
+            tagList.split(",").map((id: string) => ({
+              notIn: { tagId: id },
+            })),
+          ],
+        },
+      },
+    })
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
+});
 
-// export const fetchPosRoleById = (req: Request, res: Response) => {
-//   const { posRole_id } = req.params;
-//   pOSRole
-//     .findUniqueOrThrow({
-//       where: {
-//         id: parseInt(posRole_id),
-//       },
-//       include: {
-//         PermissionOnRole: true,
-//         User: true,
-//       },
-//     })
-//     .then((data) => {
-//       if (data) {
-//         Responser({
-//           res,
-//           status: 200,
-//           body: data,
-//           message: `pos role id : ${posRole_id} fetch  successfully.`,
-//           devMessage: "",
-//         });
-//       } else {
-//         Responser({
-//           res,
-//           status: 404,
-//           body: [],
-//           message: "empty",
-//           devMessage: "",
-//         });
-//       }
-//     })
-//     .catch((err) => {
-//       Responser({
-//         res,
-//         status: 500,
-//         body: null,
-//         message: err,
-//         devMessage: "",
-//       });
-//     });
-// };
+export const fetchAllPost = catchAsync((req: Request, res: Response) => {
+  post
+    .findMany({
+      include: {
+        author: true,
+        TagsOnPost: true,
+      },
+    })
+    .then((data) => {
+      if (data.length > 0) {
+        res.status(200).json({
+          status: "success",
+          data: data,
+        });
+      }
+    });
+});
 
-// export const deletePosRoleById = (req: Request, res: Response) => {
-//   const { posRole_id } = req.params;
-//   pOSRole
-//     .delete({
-//       where: {
-//         id: parseInt(posRole_id),
-//       },
-//       include: {
-//         PermissionOnRole: true,
-//         User: true,
-//       },
-//     })
-//     .then((data) => {
-//       if (data) {
-//         Responser({
-//           res,
-//           status: 200,
-//           body: data,
-//           message: `pos role id : ${posRole_id} deleted successfully.`,
-//           devMessage: "",
-//         });
-//       } else {
-//         Responser({
-//           res,
-//           status: 404,
-//           body: [],
-//           message: "empty",
-//           devMessage: "",
-//         });
-//       }
-//     })
-//     .catch((err) => {
-//       Responser({
-//         res,
-//         status: 500,
-//         body: null,
-//         message: err,
-//         devMessage: "",
-//       });
-//     });
-// };
+export const fetchSinglePost = catchAsync((req: Request, res: Response) => {
+  const { post_id } = req.params;
+  post
+    .findUniqueOrThrow({
+      where: {
+        id: post_id,
+      },
+      include: {
+        author: true,
+        TagsOnPost: true,
+      },
+    })
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
+});
+
+export const deletePostById = catchAsync((req: Request, res: Response) => {
+  const { post_id } = req.params;
+  post
+    .delete({
+      where: {
+        id: post_id,
+      },
+      include: {
+        author: true,
+        TagsOnPost: true,
+      },
+    })
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    });
+});

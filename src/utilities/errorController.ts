@@ -1,6 +1,7 @@
 import AppError from "./appError";
 // handle error of development
 const sendErrorDev = (err, res) => {
+    console.log(err);
     res.status(err.statusCode).json({
         status: err.status,
         error: err,
@@ -10,7 +11,8 @@ const sendErrorDev = (err, res) => {
 };
 
 // handle error for production
-const sendErrorPro = (err, res) => {
+const sendErrorPro = (err: any, res: any) => {
+    console.log(err);
     // operational error
     if (err.isOperational) {
         res.status(err.statusCode).json({
@@ -26,17 +28,17 @@ const sendErrorPro = (err, res) => {
         });
     }
 }
-const globalHandler = (err, req, res, next) => {
+const globalHandler = (err: any, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     if (process.env.NODE_ENV === 'development') {
         sendErrorDev(err, res);
     } else if (process.env.NODE_ENV === 'production') {
-        let error = { ...err };
+        let error = {...err};
         // if (error.name === 'CastError') error = handleCastErrorDB(error);
         // if (error.code === 11000) error = handleDuplicateFieldsDB(error);
         // if (error.name === 'ValidationError') error = handleValidatonErrorDB(error);
-        sendErrorPro(error, res);
+        sendErrorPro(err, res);
     }
 }
 
