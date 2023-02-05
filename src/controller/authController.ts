@@ -20,10 +20,12 @@ const createSendToken = (user, statusCode, res) => {
 
 const createNewUser = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password }: signUpUser = req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashPassword = await bcrypt.hash(password, salt);
   const createUserSchema: Prisma.UserCreateInput = {
     name: name,
     email: email,
-    password: password,
+    password: hashPassword,
   };
   await prisma.user
     .create({
@@ -59,7 +61,6 @@ const login = catchAsync(
 
     if (userExit && correct) {
       const token = signedIn(userExit.id);
-      res.locals.user = userExit;
       res.status(200).json({
         status: "success",
         token,

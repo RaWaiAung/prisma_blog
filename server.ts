@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import "dotenv/config";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -12,9 +12,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  next();
+})
+
 app.use("/api/v1", routes);
 
-// parse application/json
 
 
 app.get('/test', (req: Request, res: Response) => {

@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "./appError";
 import jwt from "jsonwebtoken";
-
-const protect = async (req: Request, res: Response, next: NextFunction) => {
+import { promisify } from "util";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+const protect = async (req: any, res: any, next: NextFunction) => {
   // getting token
   try {
     const authHeader = req.headers["authorization"];
@@ -10,8 +12,19 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     if (!token) {
       return next(new AppError("Please log in to get access", 401));
     }
-    jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const fetchUser = await prisma.user.findUnique({
+      where: {
+        id: decoded.id,
+      },
+    });
+    if (!fetchUser) {
+      return next(
+        new AppError("The user belonging to this token does not exist", 401)
+      );
+    }
 
+    req.user = fetchUser;
     next();
   } catch (err) {
     return next(new AppError("Invalid token", 400));
