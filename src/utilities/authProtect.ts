@@ -25,12 +25,21 @@ const protect = async (req: any, res: any, next: NextFunction) => {
     }
 
     req.user = fetchUser;
+    console.log(req.user);
     next();
   } catch (err) {
     return next(new AppError("Invalid token", 400));
   }
 };
-
+const retrictTo = (...roles: any[]) => {
+  return (req: any, res: any, next: NextFunction) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError("You do not have to perform this action", 403));
+    }
+    next();
+  };
+};
 export default {
   protect,
+  retrictTo,
 };

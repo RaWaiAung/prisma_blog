@@ -2,6 +2,7 @@ export type signUpUser = {
     name: string;
     email: string;
     password: string;
+    role: any;
 }
 
 export type LoginDto = {

@@ -19,13 +19,14 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 const createNewUser = catchAsync(async (req: Request, res: Response) => {
-  const { name, email, password }: signUpUser = req.body;
+  const { name, email, password, role }: signUpUser = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
   const createUserSchema: Prisma.UserCreateInput = {
     name: name,
     email: email,
     password: hashPassword,
+    role: role,
   };
   await prisma.user
     .create({
@@ -68,18 +69,9 @@ const login = catchAsync(
     }
   }
 );
-const retrictTo = (...roles: any[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    console.log("local", res.locals.user);
-    if (!roles.includes(res.locals.user)) {
-      return next(new AppError("You do not have to perform this action", 403));
-    }
-    next();
-  };
-};
+
 export default {
   createNewUser,
   fetchAllUser,
   login,
-  retrictTo,
 };

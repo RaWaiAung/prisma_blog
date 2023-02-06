@@ -4,7 +4,7 @@ import auth from "../utilities/authProtect";
 const authRouter = Router();
 
 authRouter.post("/signUp", authController.createNewUser);
-authRouter.get("/fetch-all-user", auth.protect,authController.fetchAllUser);
+authRouter.get("/fetch-all-user", auth.protect, auth.retrictTo('User','Admin'),authController.fetchAllUser);
 authRouter.post("/login", authController.login);
 
 export default authRouter;

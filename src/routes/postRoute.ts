@@ -9,7 +9,7 @@ import {
 import auth from "../utilities/authProtect";
 const postRouter = Router();
 
-postRouter.post("/create-new-post", auth.protect, createNewPost);
+postRouter.post("/create-new-post", auth.protect, auth.retrictTo() , createNewPost);
 postRouter.get("/fetch-all-post", auth.protect, fetchAllPost);
 postRouter.patch("/edit-post", auth.protect, editPost);
 postRouter.get("/fetch-single-post", auth.protect, fetchSinglePost);
