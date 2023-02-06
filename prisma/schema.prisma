@@ -11,15 +11,17 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  name           String   @db.VarChar(20)
-  password       String
-  role           Role     @default(User)
-  Post           Post[]
-  Profile        Profile?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  name                 String    @db.VarChar(20)
+  password             String
+  role                 Role      @default(User)
+  Post                 Post[]
+  Profile              Profile?
+  passwordResetToken   String?
+  passwordResetExpires DateTime? @default(now())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }
 
 model Post {

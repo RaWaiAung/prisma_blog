@@ -5,6 +5,8 @@ CREATE TABLE `User` (
     `name` VARCHAR(20) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `role` ENUM('Admin', 'User', 'SuperAdmin') NOT NULL DEFAULT 'User',
+    `passwordResetToken` VARCHAR(191) NULL,
+    `passwordResetExpires` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 

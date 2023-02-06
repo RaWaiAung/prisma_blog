@@ -6,5 +6,6 @@ const authRouter = Router();
 authRouter.post("/signUp", authController.createNewUser);
 authRouter.get("/fetch-all-user", auth.protect, auth.retrictTo('User','Admin'),authController.fetchAllUser);
 authRouter.post("/login", authController.login);
+authRouter.post("/forgetpassword", authController.forgotPassword);
 
 export default authRouter;

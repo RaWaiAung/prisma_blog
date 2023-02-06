@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "./appError";
 import jwt from "jsonwebtoken";
+import crypto = require("crypto");
 import { promisify } from "util";
 import { PrismaClient } from "@prisma/client";
+import catchAsync from "./catchAsync";
 const prisma = new PrismaClient();
+
 const protect = async (req: any, res: any, next: NextFunction) => {
   // getting token
   try {
@@ -31,6 +34,7 @@ const protect = async (req: any, res: any, next: NextFunction) => {
     return next(new AppError("Invalid token", 400));
   }
 };
+
 const retrictTo = (...roles: any[]) => {
   return (req: any, res: any, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
@@ -39,6 +43,7 @@ const retrictTo = (...roles: any[]) => {
     next();
   };
 };
+
 export default {
   protect,
   retrictTo,

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { PrismaClient, Prisma, Role } from "@prisma/client";
 import { signUpUser } from "../types/user/user";
 import signedIn from "../utilities/signedIn";
@@ -69,9 +70,38 @@ const login = catchAsync(
     }
   }
 );
+const forgotPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body.email;
+    const user = await prisma.user.findFirstOrThrow({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return next(new AppError("There is no user with email ", 404));
+    }
+    const generateToken = crypto.randomBytes(32).toString("hex");
+    const resetToken = crypto
+      .createHash("sha256")
+      .update(generateToken)
+      .digest("hex");
+    const resetDate = new Date().toISOString();
 
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetDate,
+      },
+    });
+  }
+);
 export default {
   createNewUser,
   fetchAllUser,
   login,
+  forgotPassword,
 };
