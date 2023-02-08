@@ -69,6 +69,9 @@ export const fetchCategory = catchAsync(async (req: Request, res: Response) => {
       where: {
         id: tag_id,
       },
+      include: {
+        TagsOnPost: true
+      }
     })
     .then((data) => {
       res.status(200).json({
@@ -80,11 +83,17 @@ export const fetchCategory = catchAsync(async (req: Request, res: Response) => {
 
 export const fetchAllCategory = catchAsync(
   async (req: Request, res: Response) => {
-    await tag.findMany().then((data) => {
-      res.status(200).json({
-        status: "success",
-        data: data,
+    await tag
+      .findMany({
+        include: {
+          TagsOnPost: true,
+        },
+      })
+      .then((data) => {
+        res.status(200).json({
+          status: "success",
+          data: data,
+        });
       });
-    });
   }
 );
