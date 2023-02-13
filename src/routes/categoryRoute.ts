@@ -15,7 +15,12 @@ categoryRouter.post(
   auth.retrictTo("SuperAdmin"),
   createNewCategory
 );
-categoryRouter.patch("/edit-tag", auth.protect, editCategory);
+categoryRouter.patch(
+  "/edit-tag",
+  auth.protect,
+  auth.retrictTo("User"),
+  editCategory
+);
 categoryRouter.get("/fetch-single-tag/:tag_id", auth.protect, fetchCategory);
 categoryRouter.delete(
   "/delete-tag/:tag_id",
