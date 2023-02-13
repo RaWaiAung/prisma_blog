@@ -26,6 +26,8 @@ model User {
 
 model Post {
   id         String       @id @default(uuid())
+  fileId     String
+  file       File?        @relation(fields: [fileId], references: [id])
   title      String       @db.VarChar(255)
   content    String       @db.VarChar(255)
   published  Boolean      @default(false)
@@ -56,9 +58,21 @@ model TagsOnPost {
   updatedAt DateTime @updatedAt
 }
 
+model File {
+  id        String   @id @default(uuid())
+  filename  String   @db.VarChar(255)
+  filePath  String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post[]
+  Tag       Tag[]
+}
+
 model Tag {
   id         String       @id @default(uuid())
   hashtag    String
+  fileId     String
+  file       File?        @relation(fields: [fileId], references: [id])
   TagsOnPost TagsOnPost[]
 }
 
