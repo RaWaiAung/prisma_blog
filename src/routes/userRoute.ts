@@ -2,10 +2,13 @@ import { Router } from "express";
 
 import userController from "../controller/authorController";
 import auth from "../utilities/authProtect";
-import { uploadUserPhoto } from "../utilities/handleForm";
+import { resizeUserPhoto, uploadUserPhoto } from "../utilities/handleForm";
 const userRouter = Router();
 
-userRouter.get("/me", auth.protect, userController.me);
-userRouter.post("/uploadProfile",uploadUserPhoto, auth.protect, userController.uploadProfile);
+userRouter.use(auth.protect);
+userRouter.get("/me", userController.me);
+userRouter.patch("/update-user", userController.updateUser);
+userRouter.post("/upload-profile",uploadUserPhoto, resizeUserPhoto, userController.uploadProfile);
+userRouter.delete("/delete-me", userController.deleteMe);
 
 export default userRouter;

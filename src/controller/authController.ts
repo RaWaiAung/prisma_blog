@@ -94,7 +94,6 @@ const forgotPassword = catchAsync(
       },
       data: {
         passwordResetToken: resetToken,
-        passwordResetExpires: resetDate,
       },
     });
   }

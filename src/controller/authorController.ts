@@ -6,44 +6,68 @@ import { filtetObj } from "../utilities/handleForm";
 
 const prisma = new PrismaClient();
 
-const me = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const getme = await prisma.user.findUnique({
-      where: {
-        id: req.body.userId,
-      },
-    });
-    if (!getme) {
-      return next(new AppError("No tour found with that Id", 404));
-    }
-    res.status(200).json({ getme });
+const me = catchAsync(async (req: any, res: Response, next: NextFunction) => {
+  const getme = await prisma.user.findUnique({
+    where: {
+      id: req.user.id,
+    },
+  });
+  if (!getme) {
+    return next(new AppError("No user found with that Id", 404));
   }
-);
+  res.status(200).json({ getme });
+});
 
-const uploadProfile = catchAsync(async (req: Request, res: Response) => {
+const uploadProfile = catchAsync(async (req, res: Response) => {
   const filterBody = filtetObj(req.body, "bio");
+  console.log(req.user);
   if (req.file) filterBody.image = req.file.filename;
-  const userProfileSchema: Prisma.UserUpdateInput = {
-    Profile: {
-      create: {
+  await prisma.profile
+    .update({
+      where: {
+        userEmail: req.user.email,
+      },
+      data: {
         image: filterBody.image,
         bio: filterBody.bio,
       },
-    },
-  };
-  await prisma.user
-    .update({
-      where: {
-        email: req.body.email,
-      },
-      data: userProfileSchema,
     })
     .then((data) => {
       return res.status(200).json({ data });
     });
 });
 
+const deleteMe = catchAsync(
+  async (req: any, res: Response, next: NextFunction) => {
+    const getme = await prisma.user.delete({
+      where: {
+        id: req.user.id,
+      },
+    });
+    if (!getme) {
+      return next(new AppError("No user found with that Id", 404));
+    }
+    res.status(200).json({ getme });
+  }
+);
+
+const updateUser = catchAsync(async (req: any, res: Response) => {
+  const { name, email, role } = req.body;
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: req.user.id,
+    },
+    data: {
+      name: name,
+      email: email,
+      role: role,
+    },
+  });
+  res.status(200).json({ updatedUser });
+});
 export default {
   me,
   uploadProfile,
+  deleteMe,
+  updateUser,
 };
